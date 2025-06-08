@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎉 Happy Birthday 🎉</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(#ffe6f0, #ffccf2);
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    input, button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 12px;
+      border: none;
+    }
+    #box {
+      display: none;
+      background-color: #ff66b3;
+      color: white;
+      font-size: 28px;
+      margin-top: 30px;
+    }
+    #message {
+      font-size: 32px;
+      margin-top: 30px;
+      color: #d9006c;
+      min-height: 40px;
+    }
+    #shareBtn, #muteBtn {
+      display: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎂 Happy Birthday Game 🎂</h1>
+
+  <div id="inputDiv">
+    <input type="text" id="username" placeholder="Enter your name">
+    <button onclick="start()">Start</button>
+  </div>
+
+  <button id="box" onclick="reveal()">🎁 Click Your Gift</button>
+
+  <div id="message"></div>
+  <button id="shareBtn" onclick="copyLink()">🔗 Share This Page</button>
+  <button id="muteBtn" onclick="toggleMusic()">🔊 Mute / Unmute</button>
+
+  <!-- Audios -->
+  <audio id="audio" src="https://www.myinstants.com/media/sounds/happy-birthday.mp3"></audio>
+  <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-sunny.mp3" loop></audio>
+
+  <!-- Fireworks canvas -->
+  <canvas id="fireworks" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const name = params.get("name");
+
+    const inputDiv = document.getElementById("inputDiv");
+    const box = document.getElementById("box");
+    const message = document.getElementById("message");
+    const audio = document.getElementById("audio");
+    const bgMusic = document.getElementById("bgMusic");
+    const shareBtn = document.getElementById("shareBtn");
+    const muteBtn = document.getElementById("muteBtn");
+
+    if (name) {
+      inputDiv.style.display = "none";
+      box.style.display = "inline-block";
+      bgMusic.play();
+      muteBtn.style.display = "inline-block";
+    }
+
+    function start() {
+      const user = document.getElementById("username").value.trim();
+      if (user) {
+        window.location.href = "?name=" + encodeURIComponent(user);
+      }
+    }
+
+    function reveal() {
+      box.disabled = true;
+      audio.play();
+      typeWriter(`🎉 Happy Birthday, ${name}! 🎉`, 0);
+      launchConfetti();
+      startFireworks();
+      shareBtn.style.display = "inline-block";
+    }
+
+    function typeWriter(text, i) {
+      if (i < text.length) {
+        message.innerHTML += text.charAt(i);
+        setTimeout(() => typeWriter(text, i + 1), 80);
+      }
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied! Send to your friends 🎁");
+    }
+
+    function toggleMusic() {
+      if (bgMusic.paused) {
+        bgMusic.play();
+      } else {
+        bgMusic.pause();
+      }
+    }
+
+    // Confetti
+    function launchConfetti() {
+      for (let i = 0; i < 150; i++) {
+        const div = document.createElement("div");
+        div.style.position = "fixed";
+        div.style.width = "10px";
+        div.style.height = "10px";
+        div.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        div.style.left = `${Math.random() * 100}%`;
+        div.style.top = `-${Math.random() * 20}px`;
+        div.style.opacity = 1;
+        div.style.zIndex = 1000;
+        div.style.animation = `fall ${Math.random() * 2 + 2}s linear forwards`;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 5000);
+      }
+    }
+
+    // Fireworks animation
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    let particles = [];
+
+    function startFireworks() {
+      setInterval(() => {
+        let x = Math.random() * canvas.width;
+        let y = Math.random() * canvas.height / 2;
+        for (let i = 0; i < 100; i++) {
+          particles.push({
+            x: x,
+            y: y,
+            radius: 2,
+            dx: Math.cos(i) * 2,
+            dy: Math.sin(i) * 2,
+            life: 100,
+            color: `hsl(${Math.random() * 360}, 100%, 50%)`
+          });
+        }
+      }, 800);
+
+      animate();
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, index) => {
+        p.x += p.dx;
+        p.y += p.dy;
+        p.life--;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        if (p.life <= 0) particles.splice(index, 1);
+      });
+      requestAnimationFrame(animate);
+    }
+
+  </script>
+
+  <style>
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+
+</body>
+</html>
